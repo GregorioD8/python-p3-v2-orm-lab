@@ -14,6 +14,7 @@ class Employee:
         self.department_id = department_id
 
     def __repr__(self):
+        
         return (
             f"<Employee {self.id}: {self.name}, {self.job_title}, " +
             f"Department ID: {self.department_id}>"
@@ -47,6 +48,7 @@ class Employee:
 
     @property
     def department_id(self):
+        
         return self._department_id
 
     @department_id.setter
@@ -129,6 +131,7 @@ class Employee:
         """ Initialize a new Employee instance and save the object to the database """
         employee = cls(name, job_title, department_id)
         employee.save()
+        
         return employee
 
     @classmethod
@@ -147,6 +150,7 @@ class Employee:
             employee = cls(row[1], row[2], row[3])
             employee.id = row[0]
             cls.all[employee.id] = employee
+        
         return employee
 
     @classmethod
@@ -171,6 +175,7 @@ class Employee:
         """
 
         row = CURSOR.execute(sql, (id,)).fetchone()
+        
         return cls.instance_from_db(row) if row else None
 
     @classmethod
@@ -183,8 +188,19 @@ class Employee:
         """
 
         row = CURSOR.execute(sql, (name,)).fetchone()
+        
         return cls.instance_from_db(row) if row else None
 
     def reviews(self):
         """Return list of reviews associated with current employee"""
-        pass
+        from review import Review
+        sql = """
+            SELECT * FROM reviews
+            WHERE employee_id = ?    
+        """
+        CURSOR.execute(sql, (self.id, ), )
+        rows = CURSOR.fetchall()
+        
+        return [
+            Review.instance_from_db(row) for row in rows
+        ]
